@@ -1,0 +1,37 @@
+service: aws-node-express-createDocAt
+frameworkVersion: '3'
+
+useDotenv: true
+
+package:
+  excludeDevDependencies: true
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  stage: development
+  region: ${env:AWS__REGION}
+  iamRoleStatements:
+    - Effect: 'Allow'
+      Action:
+        - 'dynamodb:*'
+      Resource: ${env:AWS__TABLE_ARN}
+  environment:
+    AWS__REGION: ${env:AWS__REGION}
+    AWS__ACCESS_KEY_ID: ${env:AWS__ACCESS_KEY_ID}
+    AWS__SECRET_ACCESS_KEY: ${env:AWS__SECRET_ACCESS_KEY}
+    AWS__S3_BUCKET: ${env:AWS__S3_BUCKET}
+    AWS__TABLE_NAME: ${env:AWS__TABLE_NAME}
+
+functions:
+  api:
+    handler: scheduler.handler
+    events:
+      - httpApi:
+          method: GET
+          path: /createDocAt
+  execute:
+    handler: executor.handler
+
+plugins:
+  - serverless-offline
